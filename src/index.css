@@ -8,6 +8,11 @@
     --foreground: 24 36% 15%;
     --card: 40 60% 99%;
     --card-foreground: 24 36% 15%;
+    /* Pet card background (used by `bg-pet-card` in components/PetCard.tsx).
+       Change this single value to re-theme the pet cards, e.g.:
+       orange: hsl(39 92% 77%) (orange-200) | hsl(25 95% 70%) (orange-300)
+       rose:   hsl(350 92% 90%)   teal: hsl(173 80% 90%)   lime: hsl(90 63% 89%) */
+    --pet-card: hsl(196, 26%, 75%);
     --primary: 18 85% 44%;
     --primary-foreground: 40 60% 98%;
     --muted: 38 25% 92%;

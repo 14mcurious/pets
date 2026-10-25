@@ -12,6 +12,7 @@ export default {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        "pet-card": "var(--pet-card)",
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",

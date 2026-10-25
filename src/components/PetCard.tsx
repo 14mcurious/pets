@@ -28,7 +28,7 @@ export default function PetCard({ pet, index = 0 }: { pet: Pet; index?: number }
   const chips = petChips(pet);
   return (
     <article
-      className="flex animate-fade-up flex-col rounded-2xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+      className="flex animate-fade-up flex-col rounded-2xl border bg-pet-card p-6 shadow-sm transition-shadow hover:shadow-md"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start justify-between">
