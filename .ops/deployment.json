@@ -1,0 +1,14 @@
+{
+  "packages": [
+    "v1",
+    "setup"
+  ],
+  "packageActions": {
+    "v1": [
+      "pets"
+    ],
+    "setup": [
+      "database"
+    ]
+  }
+}
