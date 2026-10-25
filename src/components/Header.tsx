@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, PawPrint } from "lucide-react";
+import { Home, PencilLine, PawPrint } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -31,6 +31,10 @@ export default function Header() {
           <NavLink to="/pets" className={linkClass}>
             <PawPrint className="size-4" aria-hidden="true" />
             Pets
+          </NavLink>
+          <NavLink to="/pets-manager" className={linkClass}>
+            <PencilLine className="size-4" aria-hidden="true" />
+            Manage
           </NavLink>
         </nav>
       </div>

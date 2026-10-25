@@ -22,8 +22,25 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-export function listPets(): Promise<{ pets: Pet[] }> {
-  return request<{ pets: Pet[] }>(BASE);
+export function listPets(search = ""): Promise<{ pets: Pet[] }> {
+  const query = search.trim();
+  if (!query) {
+    return request<{ pets: Pet[] }>(BASE);
+  }
+  // The dev proxy strips query strings, so search rides in the POST body.
+  return request<{ pets: Pet[] }>(BASE, {
+    method: "POST",
+    body: JSON.stringify({ q: query }),
+  });
+}
+
+export async function getPet(id: number): Promise<Pet> {
+  const data = await request<{ pets: Pet[] }>(`${BASE}/${id}`);
+  const pet = (data.pets || [])[0];
+  if (!pet) {
+    throw new Error("Pet not found");
+  }
+  return pet;
 }
 
 export function createPet(draft: PetDraft): Promise<{ pet: Pet }> {

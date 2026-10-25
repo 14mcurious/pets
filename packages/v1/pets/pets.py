@@ -90,9 +90,19 @@ def main(args, ctx=None):
     try:
         if method == "GET":
             pet_id = request_route_id(args, data)
+            query = clean(data.get("q"), 200)
             with conn.cursor() as cur:
                 if pet_id:
                     cur.execute(SELECT_SQL + " WHERE id = %s", (pet_id,))
+                    rows = cur.fetchall()
+                elif query:
+                    like = "%" + query + "%"
+                    cur.execute(
+                        SELECT_SQL
+                        + " WHERE name ILIKE %s OR species ILIKE %s"
+                        + " ORDER BY created_at DESC",
+                        (like, like),
+                    )
                     rows = cur.fetchall()
                 else:
                     cur.execute(SELECT_SQL + " ORDER BY created_at DESC")
@@ -103,6 +113,21 @@ def main(args, ctx=None):
             return {"ok": True, "pets": pets}
 
         if method == "POST":
+            # Search rides in the POST body because the dev proxy strips query
+            # strings; GET ?q=... still works when the action host is called
+            # directly. A POST with q and no name searches instead of creating.
+            search_query = clean(data.get("q"), 200)
+            if search_query and not clean(data.get("name"), 200):
+                like = "%" + search_query + "%"
+                with conn.cursor() as cur:
+                    cur.execute(
+                        SELECT_SQL
+                        + " WHERE name ILIKE %s OR species ILIKE %s"
+                        + " ORDER BY created_at DESC",
+                        (like, like),
+                    )
+                    rows = cur.fetchall()
+                return {"ok": True, "pets": [row_to_pet(row) for row in rows]}
             name = clean(data.get("name"), 200)
             if not name:
                 return {"ok": False, "error": "Pet name is required"}

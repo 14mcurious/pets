@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
+  ArrowLeft,
   CalendarClock,
   HeartHandshake,
   Loader2,
@@ -359,6 +361,7 @@ function Field({
 /* ---------------- Page ---------------- */
 
 export default function PetsManager() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -379,12 +382,103 @@ export default function PetsManager() {
     load();
   }, [load]);
 
+  // Focused editing mode: the profile page deep-links here as
+  // /pets-manager?pet=<id> so the user lands straight on that pet's form.
+  const focusIdParam = searchParams.get("pet");
+  const focusId = focusIdParam ? Number(focusIdParam) : 0;
+  const hasFocus = focusId > 0 && Number.isFinite(focusId);
+  const focusPet = hasFocus && !loading && !error ? pets.find((p) => p.id === focusId) : undefined;
+
+  const clearFocus = () => {
+    if (!searchParams.has("pet")) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete("pet");
+    setSearchParams(next, { replace: true });
+  };
+
+  if (hasFocus) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:px-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <Link
+              to="/pets"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+            >
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              Back to the pets list
+            </Link>
+            {focusPet && (
+              <Link
+                to={`/pets/${focusPet.id}`}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+              >
+                <ArrowLeft className="size-4" aria-hidden="true" />
+                Back to {focusPet.name}&rsquo;s profile
+              </Link>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 rounded-2xl border bg-card p-10 text-muted-foreground">
+              <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+              <span>Loading profile…</span>
+            </div>
+          ) : error ? (
+            <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+              {error}
+            </div>
+          ) : focusPet ? (
+            <>
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold tracking-tight">
+                  Editing {focusPet.name}&rsquo;s profile
+                </h1>
+                <p className="mt-2 text-muted-foreground">
+                  Update {focusPet.name}&rsquo;s adoption and visit details, then save.
+                </p>
+              </div>
+              <PetManageCard
+                pet={focusPet}
+                onChanged={() => load()}
+                onDeleted={() => {
+                  load();
+                  clearFocus();
+                }}
+              />
+            </>
+          ) : (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+              Pet {focusId} was not found — it may have been deleted. You can still
+              manage the whole crew by viewing all pets.
+              <button
+                type="button"
+                onClick={clearFocus}
+                className="ml-2 font-semibold text-amber-900 underline"
+              >
+                Show all pets
+              </button>
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
+        <Link
+          to="/pets"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to the pets list
+        </Link>
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Pet information</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Manage pets</h1>
           <p className="mt-2 text-muted-foreground">
             Add new pets and keep their adoption and visit details up to date.
           </p>
